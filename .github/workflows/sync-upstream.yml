@@ -7,31 +7,39 @@ on:
 
 permissions:
   contents: write
-  actions: write
-
 
 jobs:
   sync:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout repo
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Configure git
+      - name: Set git config
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
 
-      - name: Sync main from upstream
+      - name: Add upstream
         run: |
           git remote add upstream https://github.com/shuaiplus/NodeWarden.git || true
-          git fetch upstream
-          git checkout main
-          git merge upstream/main
 
-      - name: Push synced main
+      - name: Fetch upstream
+        run: git fetch upstream
+
+      - name: Merge upstream
         run: |
-          git checkout HEAD -- .github/workflows/
-          git push origin main
+          git checkout main
+          git merge upstream/main --no-edit || true
+
+      # 🔥 核心：彻底避免冲突 & 权限问题
+      - name: Keep own workflows (avoid conflict)
+        run: |
+          git checkout HEAD -- .github/workflows/ || true
+
+      - name: Push changes
+        run: |
+          git push origin main || true
