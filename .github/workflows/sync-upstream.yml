@@ -33,4 +33,5 @@ jobs:
 
       - name: Push synced main
         run: |
+          git checkout HEAD -- .github/workflows/
           git push origin main
